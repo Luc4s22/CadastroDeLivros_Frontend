@@ -88,3 +88,28 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log('Service Worker registrado'))
     .catch(err => console.log('Erro SW:', err));
 }
+
+let deferredPrompt;
+const btnInstall = document.getElementById('btnInstall');
+
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = 'block';
+});
+
+// Clique no botão
+btnInstall.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+
+  if (choice.outcome === 'accepted') {
+    console.log('App instalado');
+  }
+
+  deferredPrompt = null;
+  btnInstall.style.display = 'none';
+});
