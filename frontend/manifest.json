@@ -1,11 +1,10 @@
 {
-  "name": "Diário Pet",
-  "short_name": "PetDiary",
+  "name": "Cadastro de Livros",
+  "short_name": "Livros",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f5f7fb",
-  "theme_color": "#4f46e5",
-  "description": "Aplicativo para registrar acontecimentos do seu pet.",
+  "background_color": "#ffffff",
+  "theme_color": "#0d3b82",
   "icons": [
     {
       "src": "icons/icon-192.png",
