@@ -1,31 +1,19 @@
-const API_URL = 'https://cadastrodelivros-backend.onrender.com/api/entries';
-
-
+const API_URL = 'https://cadastrodelivros-backend-3.onrender.com/api/entries';
 
 const form = document.getElementById('formLivro');
 const lista = document.getElementById('listaLivros');
 const mensagem = document.getElementById('mensagem');
 
-// carregar dados
 let livros = [];
-try {
-  livros = JSON.parse(localStorage.getItem('livros')) || [];
-} catch {
-  livros = [];
+
+
+async function carregarLivros() {
+  const res = await fetch(API_URL);
+  livros = await res.json();
+  renderizar();
 }
 
-// salvar
-function salvar() {
-  localStorage.setItem('livros', JSON.stringify(livros));
-}
 
-// formatar data
-function formatarData(data) {
-  const d = new Date(data);
-  return d.toLocaleDateString('pt-BR');
-}
-
-// renderizar
 function renderizar() {
   lista.innerHTML = "";
 
@@ -34,37 +22,23 @@ function renderizar() {
     return;
   }
 
-  livros.forEach((livro, index) => {
+  livros.forEach((livro) => {
     const li = document.createElement('li');
 
     li.innerHTML = `
       <div>
         <strong>${livro.nome}</strong>
-        <span>${formatarData(livro.data)} • ${livro.editora}</span>
+        <span>${livro.data} • ${livro.editora}</span>
       </div>
-      <button class="delete" data-index="${index}">X</button>
+      <button class="delete" data-id="${livro._id}">X</button>
     `;
 
     lista.appendChild(li);
   });
 }
 
-// excluir (delegação)
-lista.addEventListener('click', (e) => {
-  if (e.target.classList.contains('delete')) {
-    const index = e.target.dataset.index;
 
-    livros.splice(index, 1);
-    salvar();
-    renderizar();
-
-    mensagem.textContent = "Livro removido!";
-    mensagem.style.color = "red";
-  }
-});
-
-// submit
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const nome = document.getElementById('nome').value.trim();
@@ -77,15 +51,34 @@ form.addEventListener('submit', (e) => {
     return;
   }
 
-  livros.push({ nome, data, editora });
+  await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, data, editora })
+  });
 
-  salvar();
-  renderizar();
-  form.reset();
-
-  mensagem.textContent = "Livro cadastrado com sucesso!";
+  mensagem.textContent = "Livro cadastrado!";
   mensagem.style.color = "green";
+
+  form.reset();
+  carregarLivros();
 });
 
-// iniciar
-renderizar();
+
+lista.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('delete')) {
+    const id = e.target.dataset.id;
+
+    await fetch(`${API_URL}/${id}`, {
+      method: 'DELETE'
+    });
+
+    mensagem.textContent = "Livro removido!";
+    mensagem.style.color = "red";
+
+    carregarLivros();
+  }
+});
+
+
+carregarLivros();
